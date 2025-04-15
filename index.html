@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat en ligne</title>
+  <style>
+    body { font-family: sans-serif; background: #222; color: #fff; text-align: center; }
+    #chat-box { max-width: 500px; margin: auto; background: #333; padding: 1em; border-radius: 10px; }
+    #messages { height: 300px; overflow-y: scroll; background: #111; padding: 1em; border-radius: 5px; text-align: left; }
+    input, button { padding: 0.5em; margin: 0.5em; border-radius: 5px; border: none; }
+  </style>
+</head>
+<body>
+
+<div id="chat-box">
+  <h2>🔥 Chat en ligne</h2>
+  <input id="username" placeholder="Votre pseudo" /><br />
+  <div id="messages"></div><br />
+  <input id="message" placeholder="Message..." />
+  <button onclick="sendMessage()">Envoyer</button>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+  // 🔁 Colle ici TA config firebase
+  const firebaseConfig = {
+    apiKey: "TA_CLE_API",
+    authDomain: "TON_PROJET.firebaseapp.com",
+    projectId: "TON_PROJET",
+    storageBucket: "TON_PROJET.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const messagesDiv = document.getElementById("messages");
+
+  function sendMessage() {
+    const username = document.getElementById("username").value.trim();
+    const text = document.getElementById("message").value.trim();
+    if (username && text) {
+      db.ref("messages").push({
+        user: username,
+        message: text,
+        timestamp: Date.now()
+      });
+      document.getElementById("message").value = "";
+    }
+  }
+
+  db.ref("messages").on("child_added", snapshot => {
+    const data = snapshot.val();
+    const div = document.createElement("div");
+    div.textContent = `${data.user}: ${data.message}`;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  });
+</script>
+
+</body>
+</html>
